@@ -1,0 +1,26 @@
+# Stage 1: Build the Spring Boot application using Maven
+FROM maven:3.9.9-eclipse-temurin-21-alpine AS backend-build
+LABEL authors="Anupam"
+
+# Set working directory
+WORKDIR /app
+
+# Copy the pom.xml and download dependencies
+COPY pom.xml ./
+RUN mvn dependency:go-offline
+
+# Copy the source code and build the application
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create a lightweight image with the built JAR file
+FROM eclipse-temurin:21-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy the JAR from the builder stage
+COPY --from=backend-build /app/target/*.jar app.jar
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]

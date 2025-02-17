@@ -1,0 +1,26 @@
+name: springboot-crud-docker-learn
+
+services:
+
+  my_database:
+    container_name: db_mysql
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: user_management
+    networks:
+      - crudapp_network
+
+  backend:
+    container_name: backend1
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - my_database
+    networks:
+      - crudapp_network
+    restart: on-failure
+
+networks:
+  crudapp_network:
